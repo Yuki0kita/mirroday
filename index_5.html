@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Before / After 記録</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      primary: {50:'#f0f5ff',100:'#dde8ff',200:'#c0d4ff',300:'#95b6ff',400:'#6492ff',500:'#2b70ef',600:'#2250df',700:'#1a40b5',800:'#13318d',900:'#0e266a',950:'#07194e'},
+      body:'#3d4b5f', danger:'#ef4444', success:'#059669', warning:'#d97706'
+    },
+    fontFamily: { sans:['Inter','Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','sans-serif'] },
+    fontSize: {
+      xs:['0.8125rem',{lineHeight:'1.4'}], sm:['0.9375rem',{lineHeight:'1.7'}],
+      base:['1.125rem',{lineHeight:'2.0'}], lg:['1.25rem',{lineHeight:'1.5'}],
+      xl:['1.375rem',{lineHeight:'1.4'}], '2xl':['1.625rem',{lineHeight:'1.4'}], '3xl':['2rem',{lineHeight:'1.4'}]
+    }
+  }}
+}
+</script>
+<style>
+  body { line-height:2.0; letter-spacing:0.02em; background:#f9fafb; }
+  h1,h2,h3,h4 { line-height:1.4; letter-spacing:0.01em; }
+  .leading-normal { line-height:1.5; }
+  input[type=range]{ accent-color:#2b70ef; }
+  .no-sb::-webkit-scrollbar{ display:none; } .no-sb{ -ms-overflow-style:none; scrollbar-width:none; }
+</style>
+</head>
+<body class="font-sans text-body">
+
+<div class="max-w-md mx-auto min-h-screen flex flex-col bg-gray-50">
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="h-14 px-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex w-7 h-7 items-center justify-center rounded-lg bg-primary-50 text-primary-500">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        </span>
+        <h1 class="text-xl font-bold text-slate-900">Before / After</h1>
+      </div>
+      <span id="streak-badge" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">継続 0日</span>
+    </div>
+  </header>
+
+  <main id="main" class="flex-1 overflow-y-auto px-4 py-5 pb-28"></main>
+
+  <nav class="fixed bottom-0 inset-x-0 z-20 mx-auto max-w-md bg-white border-t border-slate-200">
+    <div class="grid grid-cols-5">
+      <button data-tab="home" class="tab-btn flex flex-col items-center justify-center gap-1 h-16" aria-label="ホーム">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="text-xs font-medium">ホーム</span>
+      </button>
+      <button data-tab="timeline" class="tab-btn flex flex-col items-center justify-center gap-1 h-16" aria-label="記録">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span class="text-xs font-medium">記録</span>
+      </button>
+      <button data-tab="compare" class="tab-btn flex flex-col items-center justify-center gap-1 h-16" aria-label="比較">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        <span class="text-xs font-medium">比較</span>
+      </button>
+      <button data-tab="post" class="tab-btn flex flex-col items-center justify-center gap-1 h-16" aria-label="投稿作成">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <span class="text-xs font-medium">投稿</span>
+      </button>
+      <button data-tab="settings" class="tab-btn flex flex-col items-center justify-center gap-1 h-16" aria-label="設定">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="text-xs font-medium">設定</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="fixed bottom-20 inset-x-0 z-30 pointer-events-none">
+    <div class="max-w-md mx-auto px-4 flex justify-end">
+      <button id="fab" aria-label="写真を追加" class="pointer-events-auto w-14 h-14 inline-flex items-center justify-center rounded-full bg-primary-500 text-white shadow-md hover:bg-primary-700 cursor-pointer">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add-photo modal -->
+<div id="add-modal" class="hidden fixed inset-0 z-40">
+  <div class="absolute inset-0 bg-slate-900/40" data-close="add"></div>
+  <div class="absolute inset-x-0 bottom-0 mx-auto max-w-md bg-white rounded-t-2xl border-t border-slate-200 shadow-md max-h-[92vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white px-5 pt-4 pb-3 border-b border-slate-200 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-slate-900">写真を追加</h2>
+      <button data-close="add" aria-label="閉じる" class="w-10 h-10 inline-flex items-center justify-center rounded-lg hover:bg-gray-50 cursor-pointer text-slate-500">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="px-5 py-4 space-y-5">
+      <div class="leading-normal">
+        <label class="block text-sm font-medium text-slate-700 mb-2">写真</label>
+        <div class="h-44 rounded-lg border border-slate-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+          <img id="add-preview" class="hidden h-full w-full object-contain" alt="プレビュー" />
+          <span id="add-placeholder" class="text-sm text-slate-500">未選択</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button id="btn-camera" class="inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            撮影
+          </button>
+          <label class="inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            ライブラリ
+            <input id="file-input" type="file" accept="image/*" class="hidden" />
+          </label>
+        </div>
+      </div>
+      <div class="leading-normal">
+        <label class="block text-sm font-medium text-slate-700 mb-2">カテゴリ</label>
+        <div id="cat-picker" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div class="leading-normal">
+        <label for="in-date" class="block text-sm font-medium text-slate-700 mb-2">撮影日</label>
+        <input id="in-date" type="date" class="w-full px-3 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="leading-normal">
+          <label for="in-weight" class="block text-sm font-medium text-slate-700 mb-2">体重 (任意)</label>
+          <div class="relative"><input id="in-weight" type="number" step="0.1" inputmode="decimal" placeholder="0.0" class="w-full px-3 py-2 pr-10 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">kg</span></div>
+        </div>
+        <div class="leading-normal">
+          <label for="in-fat" class="block text-sm font-medium text-slate-700 mb-2">体脂肪率 (任意)</label>
+          <div class="relative"><input id="in-fat" type="number" step="0.1" inputmode="decimal" placeholder="0.0" class="w-full px-3 py-2 pr-10 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">%</span></div>
+        </div>
+      </div>
+      <div class="leading-normal">
+        <label for="in-memo" class="block text-sm font-medium text-slate-700 mb-2">メモ (任意)</label>
+        <textarea id="in-memo" rows="2" class="w-full px-3 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" placeholder="今日の記録"></textarea>
+      </div>
+    </div>
+    <div class="sticky bottom-0 bg-white px-5 py-4 border-t border-slate-200 flex gap-3">
+      <button data-close="add" class="flex-1 inline-flex items-center justify-center h-12 px-6 text-base font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">キャンセル</button>
+      <button id="save-photo" class="flex-1 inline-flex items-center justify-center gap-2 h-12 px-6 text-base font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer disabled:opacity-50" disabled>保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Camera overlay -->
+<div id="cam-modal" class="hidden fixed inset-0 z-50 bg-slate-900">
+  <div class="relative mx-auto max-w-md h-full flex flex-col">
+    <div class="absolute top-0 inset-x-0 z-10 flex items-center justify-between p-4">
+      <button id="cam-close" aria-label="閉じる" class="w-10 h-10 inline-flex items-center justify-center rounded-full bg-slate-900/50 text-white cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="flex gap-2">
+        <button id="cam-grid" aria-label="ガイド切替" class="w-10 h-10 inline-flex items-center justify-center rounded-full bg-slate-900/50 text-white cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+        </button>
+        <button id="cam-flip" aria-label="カメラ切替" class="w-10 h-10 inline-flex items-center justify-center rounded-full bg-slate-900/50 text-white cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="relative flex-1 overflow-hidden">
+      <video id="cam-video" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
+      <img id="cam-ghost" class="hidden absolute inset-0 w-full h-full object-cover pointer-events-none" alt="" />
+      <div id="cam-gridlines" class="hidden absolute inset-0 pointer-events-none">
+        <div class="absolute top-1/3 inset-x-0 border-t border-white/40"></div>
+        <div class="absolute top-2/3 inset-x-0 border-t border-white/40"></div>
+        <div class="absolute left-1/3 inset-y-0 border-l border-white/40"></div>
+        <div class="absolute left-2/3 inset-y-0 border-l border-white/40"></div>
+      </div>
+      <div id="cam-error" class="hidden absolute inset-0 flex items-center justify-center px-8 text-center text-sm text-white/80"></div>
+    </div>
+    <div class="p-5 bg-slate-900">
+      <div id="ghost-ctrl" class="hidden mb-4 leading-normal">
+        <div class="flex items-center justify-between text-xs text-white/70 mb-1"><span>前回写真の透過</span><span id="ghost-val">40%</span></div>
+        <input id="ghost-range" type="range" min="0" max="80" value="40" class="w-full" />
+      </div>
+      <div class="flex items-center justify-center">
+        <button id="cam-shot" aria-label="撮影" class="w-16 h-16 rounded-full bg-white border-4 border-white/40 cursor-pointer active:scale-95 transition-transform"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Goal modal -->
+<div id="goal-modal" class="hidden fixed inset-0 z-40">
+  <div class="absolute inset-0 bg-slate-900/40" data-close="goal"></div>
+  <div class="absolute inset-x-0 bottom-0 mx-auto max-w-md bg-white rounded-t-2xl border-t border-slate-200 shadow-md">
+    <div class="px-5 pt-4 pb-3 border-b border-slate-200 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-slate-900">目標を設定</h2>
+      <button data-close="goal" aria-label="閉じる" class="w-10 h-10 inline-flex items-center justify-center rounded-lg hover:bg-gray-50 cursor-pointer text-slate-500">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="px-5 py-4 space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="leading-normal">
+          <label for="g-start" class="block text-sm font-medium text-slate-700 mb-2">開始体重</label>
+          <div class="relative"><input id="g-start" type="number" step="0.1" inputmode="decimal" class="w-full px-3 py-2 pr-10 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">kg</span></div>
+        </div>
+        <div class="leading-normal">
+          <label for="g-target" class="block text-sm font-medium text-slate-700 mb-2">目標体重</label>
+          <div class="relative"><input id="g-target" type="number" step="0.1" inputmode="decimal" class="w-full px-3 py-2 pr-10 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" /><span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">kg</span></div>
+        </div>
+      </div>
+      <div class="leading-normal">
+        <label for="g-date" class="block text-sm font-medium text-slate-700 mb-2">目標日</label>
+        <input id="g-date" type="date" class="w-full px-3 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500" />
+      </div>
+      <p class="text-xs text-slate-500">達成率は参考情報です。健康状態に関する判断には使用しないでください。</p>
+    </div>
+    <div class="px-5 py-4 border-t border-slate-200 flex gap-3">
+      <button id="goal-clear" class="inline-flex items-center justify-center h-12 px-5 text-base font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">削除</button>
+      <button id="goal-save" class="flex-1 inline-flex items-center justify-center h-12 px-6 text-base font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="hidden fixed bottom-24 inset-x-0 z-[60] mx-auto max-w-md px-4">
+  <div class="flex items-start gap-3 p-4 bg-primary-50 border border-primary-200 text-primary-800 rounded-lg shadow-sm">
+    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <span id="toast-msg" class="text-sm"></span>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   Before/After 記録 — 完全版 (static single-file, melta UI)
+   保存: IndexedDB（photos: 画像Blob / kv: 設定・目標・使用量）。
+   非対応環境では in-memory フォールバック。
+   ========================================================================= */
+const CATEGORIES = [
+  {id:'muscle',label:'筋トレ'},{id:'diet',label:'ダイエット'},{id:'skin',label:'肌'},
+  {id:'hair',label:'髪'},{id:'teeth',label:'歯'},{id:'other',label:'その他'}
+];
+const catLabel = id => (CATEGORIES.find(c=>c.id===id)||{label:'その他'}).label;
+const FREE_PHOTO_LIMIT = 20, FREE_POST_LIMIT = 3;
+
+const BADGES = [
+  {id:'p1',type:'count',n:1,label:'はじめの一枚'},
+  {id:'p10',type:'count',n:10,label:'10枚記録'},
+  {id:'p30',type:'count',n:30,label:'30枚記録'},
+  {id:'s7',type:'streak',n:7,label:'7日継続'},
+  {id:'s30',type:'streak',n:30,label:'30日継続'},
+  {id:'s90',type:'streak',n:90,label:'90日継続'},
+  {id:'cat3',type:'cats',n:3,label:'3カテゴリ'},
+  {id:'cmp',type:'count',n:2,label:'比較デビュー'}
+];
+
+/* ---------- storage ---------- */
+const Store = (() => {
+  const DB='ba_record_full', PH='photos', KV='kv'; let db=null;
+  const memPh=new Map(), memKv=new Map(); let memMode=false;
+  function open(){
+    return new Promise(res=>{
+      if(!('indexedDB' in window)){ memMode=true; return res(); }
+      let req; try{ req=indexedDB.open(DB,1); }catch(e){ memMode=true; return res(); }
+      req.onupgradeneeded=e=>{ const d=e.target.result;
+        if(!d.objectStoreNames.contains(PH)) d.createObjectStore(PH,{keyPath:'id'});
+        if(!d.objectStoreNames.contains(KV)) d.createObjectStore(KV,{keyPath:'k'});
+      };
+      req.onsuccess=e=>{ db=e.target.result; res(); };
+      req.onerror=()=>{ memMode=true; res(); };
+    });
+  }
+  const tx=(s,m)=>db.transaction(s,m).objectStore(s);
+  function addPhoto(r){ if(memMode){ memPh.set(r.id,r); return Promise.resolve(); }
+    return new Promise((res,rej)=>{ const t=db.transaction(PH,'readwrite'); t.objectStore(PH).put(r); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }
+  function delPhoto(id){ if(memMode){ memPh.delete(id); return Promise.resolve(); }
+    return new Promise((res,rej)=>{ const t=db.transaction(PH,'readwrite'); t.objectStore(PH).delete(id); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }
+  function allPhotos(){ if(memMode) return Promise.resolve([...memPh.values()]);
+    return new Promise((res,rej)=>{ const r=tx(PH,'readonly').getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>rej(r.error); }); }
+  function getKv(k){ if(memMode) return Promise.resolve(memKv.get(k));
+    return new Promise((res,rej)=>{ const r=tx(KV,'readonly').get(k); r.onsuccess=()=>res(r.result?r.result.v:undefined); r.onerror=()=>rej(r.error); }); }
+  function setKv(k,v){ if(memMode){ memKv.set(k,v); return Promise.resolve(); }
+    return new Promise((res,rej)=>{ const t=db.transaction(KV,'readwrite'); t.objectStore(KV).put({k,v}); t.oncomplete=res; t.onerror=()=>rej(t.error); }); }
+  return { open, addPhoto, delPhoto, allPhotos, getKv, setKv, get isMemory(){return memMode;} };
+})();
+
+/* ---------- state ---------- */
+let photos=[];               // desc by takenDate
+let goal=null;               // {start,target,date}
+let settings={ watermark:false, watermarkText:'', reminderDays:7 };
+let usage={ posts:{} };      // posts: {'YYYY-MM': n}
+const urlCache=new Map();
+function urlFor(p){ if(urlCache.has(p.id)) return urlCache.get(p.id); const u=URL.createObjectURL(p.blob); urlCache.set(p.id,u); return u; }
+function ym(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function postsThisMonth(){ return usage.posts[ym()]||0; }
+
+async function reloadAll(){
+  const list=await Store.allPhotos();
+  list.sort((a,b)=> a.takenDate<b.takenDate?1 : a.takenDate>b.takenDate?-1 : (a.createdAt<b.createdAt?1:-1));
+  photos=list;
+  goal=(await Store.getKv('goal'))||null;
+  settings=Object.assign({watermark:false,watermarkText:'',reminderDays:7}, (await Store.getKv('settings'))||{});
+  usage=Object.assign({posts:{}}, (await Store.getKv('usage'))||{});
+  renderStreak();
+}
+async function bumpPostUsage(){ const k=ym(); usage.posts[k]=(usage.posts[k]||0)+1; await Store.setKv('usage',usage); }
+
+/* ---------- date ---------- */
+const today=()=>new Date().toISOString().slice(0,10);
+function daysBetween(a,b){ return Math.round(Math.abs(new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function signedDays(from,to){ return Math.round((new Date(to+'T00:00:00')-new Date(from+'T00:00:00'))/86400000); }
+function fmtDate(iso){ const d=new Date(iso+'T00:00:00'); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`; }
+function addDays(iso,n){ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+
+function renderStreak(){
+  const b=document.getElementById('streak-badge');
+  if(!photos.length){ b.textContent='継続 0日'; return; }
+  const dates=photos.map(p=>p.takenDate).sort();
+  b.textContent=`継続 ${daysBetween(dates[0],today())}日`;
+}
+
+/* ---------- toast ---------- */
+let toastT=null;
+function toast(msg){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.classList.remove('hidden'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.add('hidden'),2600); }
+
+/* ---------- helpers ---------- */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function emptyState(title,sub){
+  return `<div class="text-center py-16">
+    <div class="mx-auto w-12 h-12 inline-flex items-center justify-center rounded-full bg-slate-100 text-slate-400 mb-3">
+      <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    </div>
+    <p class="text-base text-slate-700 font-medium">${title}</p>
+    <p class="text-sm text-slate-500 mt-1">${sub}</p>
+  </div>`;
+}
+
+/* ---------- badges / goal computation ---------- */
+function streakDays(){ if(!photos.length) return 0; const d=photos.map(p=>p.takenDate).sort(); return daysBetween(d[0],today()); }
+function earnedBadge(b){
+  if(b.type==='count') return photos.length>=b.n;
+  if(b.type==='streak') return streakDays()>=b.n;
+  if(b.type==='cats') return new Set(photos.map(p=>p.category)).size>=b.n;
+  return false;
+}
+function goalProgress(){
+  if(!goal) return null;
+  const weighed=photos.filter(p=>p.weight!=null).sort((a,b)=>a.takenDate<b.takenDate?-1:1);
+  const current=weighed.length?weighed[weighed.length-1].weight:goal.start;
+  const start=goal.start, target=goal.target;
+  let pct=0;
+  if(target!==start) pct=((current-start)/(target-start))*100;
+  pct=Math.max(0,Math.min(100,Math.round(pct)));
+  const rem=signedDays(today(),goal.date);
+  return { current, start, target, pct, rem };
+}
+
+/* =========================================================================
+   Navigation
+   ========================================================================= */
+let activeTab='home';
+const main=document.getElementById('main');
+function setTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>{ const on=b.dataset.tab===tab; b.classList.toggle('text-primary-500',on); b.classList.toggle('text-slate-500',!on); on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'); });
+  stopAnim();
+  render();
+  main.scrollTop=0;
+}
+function render(){
+  if(activeTab==='home') renderHome();
+  else if(activeTab==='timeline') renderTimeline();
+  else if(activeTab==='compare') renderCompare();
+  else if(activeTab==='post') renderPost();
+  else if(activeTab==='settings') renderSettings();
+}
+
+/* =========================================================================
+   Home
+   ========================================================================= */
+function trendChart(){
+  const pts=photos.filter(p=>p.weight!=null).map(p=>({d:p.takenDate,v:p.weight})).sort((a,b)=>a.d<b.d?-1:1);
+  if(pts.length<2) return `<p class="text-sm text-slate-500 text-center py-6">体重を2回以上記録すると推移が表示されます</p>`;
+  const W=320,H=120,pad=8;
+  const vs=pts.map(p=>p.v), mn=Math.min(...vs), mx=Math.max(...vs), span=(mx-mn)||1;
+  const x=i=>pad+(i/(pts.length-1))*(W-pad*2);
+  const y=v=>pad+(1-(v-mn)/span)*(H-pad*2);
+  const d=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
+  const dots=pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.5" fill="#2b70ef"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto"><path d="${d}" fill="none" stroke="#2b70ef" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>
+    <div class="flex justify-between text-xs text-slate-500 mt-1"><span>${pts[0].v}kg</span><span>${pts[pts.length-1].v}kg</span></div>`;
+}
+function renderHome(){
+  const latest=photos[0];
+  const span=photos.length?daysBetween(photos[photos.length-1].takenDate,today()):0;
+  const earned=BADGES.filter(earnedBadge);
+  const gp=goalProgress();
+  const nextShoot=latest&&settings.reminderDays>0?addDays(latest.takenDate,settings.reminderDays):null;
+  const dueDelta=nextShoot?signedDays(today(),nextShoot):null;
+
+  main.innerHTML=`
+  <section class="space-y-4">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-sm text-slate-500">記録</p>
+        <p class="mt-1"><span class="text-3xl font-bold text-slate-900">${photos.length}</span><span class="text-base text-body ml-1">枚</span></p>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <p class="text-sm text-slate-500">継続</p>
+        <p class="mt-1"><span class="text-3xl font-bold text-slate-900">${span}</span><span class="text-base text-body ml-1">日</span></p>
+      </div>
+    </div>
+
+    ${latest?`
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-3"><h2 class="text-base font-semibold text-slate-900">最新の記録</h2><span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">${catLabel(latest.category)}</span></div>
+      <div class="aspect-square w-full overflow-hidden rounded-lg border border-slate-200 bg-gray-50"><img src="${urlFor(latest)}" alt="最新" class="w-full h-full object-cover"/></div>
+      <p class="mt-3 text-sm text-slate-500">${fmtDate(latest.takenDate)}${latest.memo?` ・ ${escapeHtml(latest.memo)}`:''}</p>
+      ${nextShoot?`<p class="mt-1 text-xs text-slate-500">次の撮影目安: ${fmtDate(nextShoot)}（${dueDelta>0?`あと${dueDelta}日`:dueDelta===0?'今日':`${-dueDelta}日経過`}）</p>`:''}
+    </div>
+    <button data-go="compare" class="go w-full inline-flex items-center justify-center gap-2 h-12 px-6 text-base font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+      Before / After を比較する
+    </button>`:emptyState('まだ記録がありません','右下のボタンから最初の写真を追加してください。')}
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-base font-semibold text-slate-900">目標</h2>
+        <button id="goal-edit" class="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+          ${goal?'編集':'設定'}
+        </button>
+      </div>
+      ${gp?`
+        <div class="flex items-end justify-between text-sm">
+          <span class="text-slate-500">${gp.start}kg → <span class="text-slate-900 font-semibold">${gp.target}kg</span></span>
+          <span class="text-slate-500">${gp.rem>0?`目標まであと${gp.rem}日`:gp.rem===0?'本日が目標日':'期限超過'}</span>
+        </div>
+        <div class="mt-2 h-2 w-full rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-primary-500" style="width:${gp.pct}%"></div></div>
+        <p class="mt-1 text-right text-xs text-slate-500">達成 ${gp.pct}%（現在 ${gp.current}kg・参考値）</p>
+      `:`<p class="text-sm text-slate-500">目標体重と期限を設定すると達成率が表示されます。</p>`}
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <h2 class="text-base font-semibold text-slate-900 mb-2">体重の推移</h2>
+      ${trendChart()}
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <div class="flex items-center justify-between mb-3"><h2 class="text-base font-semibold text-slate-900">バッジ</h2><span class="text-xs text-slate-500">${earned.length}/${BADGES.length}</span></div>
+      <div class="grid grid-cols-4 gap-2">
+        ${BADGES.map(b=>{ const on=earnedBadge(b); return `<div class="flex flex-col items-center gap-1 ${on?'':'opacity-40'}">
+          <div class="w-12 h-12 inline-flex items-center justify-center rounded-full ${on?'bg-primary-50 text-primary-500':'bg-slate-100 text-slate-400'}">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </div>
+          <span class="text-xs text-center text-slate-600 leading-tight">${b.label}</span>
+        </div>`;}).join('')}
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 p-4 bg-primary-50 border border-primary-200 text-primary-800 rounded-lg">
+      <svg class="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <p class="text-sm">撮影モードの前回写真ガイドを使うと同じ角度で残せます。数値はすべて参考情報です。</p>
+    </div>
+  </section>`;
+}
+
+/* =========================================================================
+   Timeline
+   ========================================================================= */
+let tlFilter='all', tlSearch='';
+function renderTimeline(){
+  const chips=[{id:'all',label:'すべて'},...CATEGORIES].map(c=>`<button data-tlf="${c.id}" class="tlf flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer ${tlFilter===c.id?'bg-primary-500 text-white border-primary-500':'bg-white text-slate-700 border-slate-200 hover:bg-gray-50'}">${c.label}</button>`).join('');
+  let list=tlFilter==='all'?photos:photos.filter(p=>p.category===tlFilter);
+  if(tlSearch) list=list.filter(p=>(p.memo||'').toLowerCase().includes(tlSearch.toLowerCase()));
+  const first=photos.length?[...photos].sort((a,b)=>a.takenDate<b.takenDate?-1:1)[0]:null;
+  const rows=list.map(p=>{
+    const day=first?daysBetween(first.takenDate,p.takenDate)+1:1;
+    return `<div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm flex gap-3">
+      <div class="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-gray-50"><img src="${urlFor(p)}" alt="記録" class="w-full h-full object-cover"/></div>
+      <div class="flex-1 min-w-0 leading-normal">
+        <div class="flex items-center gap-2"><span class="text-sm font-semibold text-slate-900">Day ${day}</span><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs font-medium">${catLabel(p.category)}</span></div>
+        <p class="text-xs text-slate-500 mt-0.5">${fmtDate(p.takenDate)}</p>
+        <div class="flex flex-wrap gap-x-3 text-xs text-body mt-1">${p.weight!=null?`<span>体重 ${p.weight}kg</span>`:''}${p.bodyFat!=null?`<span>体脂肪 ${p.bodyFat}%</span>`:''}</div>
+        ${p.memo?`<p class="text-xs text-body mt-1 truncate">${escapeHtml(p.memo)}</p>`:''}
+      </div>
+      <button data-del="${p.id}" aria-label="削除" class="del w-8 h-8 flex-shrink-0 inline-flex items-center justify-center rounded-lg text-slate-400 hover:bg-gray-50 hover:text-danger cursor-pointer">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  main.innerHTML=`<section class="space-y-4">
+    <div class="relative">
+      <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="tl-search" type="search" value="${escapeHtml(tlSearch)}" placeholder="メモを検索" class="w-full pl-10 pr-3 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500"/>
+    </div>
+    <div class="flex gap-2 overflow-x-auto no-sb -mx-1 px-1">${chips}</div>
+    ${list.length?`<div class="space-y-3">${rows}</div>`:emptyState('記録がありません','条件に合う記録はまだありません。')}
+  </section>`;
+}
+
+/* =========================================================================
+   Compare
+   ========================================================================= */
+const cmp={ beforeId:null, afterId:null, mode:'side', overlay:50, slider:50 };
+function ensurePair(){ if(!cmp.beforeId||!photos.find(p=>p.id===cmp.beforeId)) cmp.beforeId=photos[photos.length-1].id; if(!cmp.afterId||!photos.find(p=>p.id===cmp.afterId)) cmp.afterId=photos[0].id; }
+function renderCompare(){
+  if(photos.length<2){ main.innerHTML=`<section>${emptyState('比較には2枚以上必要です','写真を追加すると Before / After を比較できます。')}</section>`; return; }
+  ensurePair();
+  const before=photos.find(p=>p.id===cmp.beforeId), after=photos.find(p=>p.id===cmp.afterId);
+  const dayDiff=daysBetween(before.takenDate,after.takenDate);
+  const modeBtn=(id,label)=>`<button data-mode="${id}" class="cmode flex-1 h-9 rounded-lg text-sm font-medium cursor-pointer ${cmp.mode===id?'bg-primary-500 text-white':'bg-white text-slate-700 border border-slate-200 hover:bg-gray-50'}">${label}</button>`;
+  main.innerHTML=`<section class="space-y-4">
+    <div class="grid grid-cols-2 gap-3">${picker('before','Before',before)}${picker('after','After',after)}</div>
+    <div class="flex gap-2">${modeBtn('side','横並び')}${modeBtn('slider','スライダー')}${modeBtn('overlay','重ね')}</div>
+    <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm">
+      <div id="cmp-stage" class="relative w-full overflow-hidden rounded-lg bg-gray-50 border border-slate-200"></div>
+      ${cmp.mode!=='side'?`<div class="mt-3 leading-normal"><input id="cmp-range" type="range" min="0" max="100" value="${cmp.mode==='overlay'?cmp.overlay:cmp.slider}" class="w-full"/></div>`:''}
+      <p class="mt-2 text-center text-sm text-slate-500">${dayDiff>0?`${dayDiff}日間の変化`:'同じ日付の記録です'}</p>
+    </div>
+    <button id="cmp-save" class="w-full inline-flex items-center justify-center gap-2 h-12 px-6 text-base font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      比較画像を保存
+    </button>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <h2 class="text-base font-semibold text-slate-900 mb-1">変化アニメーション</h2>
+      <p class="text-sm text-slate-500 mb-3">記録を時系列で再生します（${tlFilter==='all'?'すべて':catLabel(tlFilter)}）。</p>
+      <div class="aspect-[3/4] w-full overflow-hidden rounded-lg bg-slate-900 border border-slate-200"><canvas id="anim-canvas" class="w-full h-full"></canvas></div>
+      <div class="flex gap-2 mt-3">
+        <button id="anim-play" class="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>再生
+        </button>
+        <button id="anim-rec" class="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>動画を保存
+        </button>
+      </div>
+    </div>
+  </section>`;
+  buildStage(before,after);
+  initAnimCanvas();
+}
+function picker(role,label,p){
+  return `<div class="leading-normal">
+    <span class="block text-sm font-medium text-slate-700 mb-2">${label}</span>
+    <button data-pick="${role}" class="pick w-full aspect-square overflow-hidden rounded-lg border ${p?'border-slate-200':'border-dashed border-slate-300'} bg-gray-50 cursor-pointer">${p?`<img src="${urlFor(p)}" alt="${label}" class="w-full h-full object-cover"/>`:`<span class="flex h-full items-center justify-center text-sm text-slate-500">選択</span>`}</button>
+    ${p?`<p class="mt-1 text-xs text-slate-500 text-center">${fmtDate(p.takenDate)}</p>`:''}
+  </div>`;
+}
+function buildStage(before,after){
+  const stage=document.getElementById('cmp-stage'); if(!before||!after){ stage.innerHTML=''; return; }
+  const bU=urlFor(before), aU=urlFor(after);
+  if(cmp.mode==='side'){
+    stage.className='relative w-full grid grid-cols-2 gap-1 rounded-lg bg-gray-50 border border-slate-200 overflow-hidden';
+    stage.innerHTML=`<div class="relative aspect-[3/4]"><img src="${bU}" class="w-full h-full object-cover" alt="Before"/><span class="absolute top-2 left-2 bg-slate-900/70 text-white text-xs font-medium px-2 py-0.5 rounded">Before</span></div><div class="relative aspect-[3/4]"><img src="${aU}" class="w-full h-full object-cover" alt="After"/><span class="absolute top-2 right-2 bg-primary-500 text-white text-xs font-medium px-2 py-0.5 rounded">After</span></div>`;
+  } else if(cmp.mode==='overlay'){
+    stage.className='relative w-full aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 border border-slate-200';
+    stage.innerHTML=`<img src="${bU}" class="absolute inset-0 w-full h-full object-cover" alt="Before"/><img id="ov-after" src="${aU}" class="absolute inset-0 w-full h-full object-cover" style="opacity:${cmp.overlay/100}" alt="After"/><span class="absolute top-2 left-2 bg-slate-900/70 text-white text-xs font-medium px-2 py-0.5 rounded">Before</span><span class="absolute top-2 right-2 bg-primary-500 text-white text-xs font-medium px-2 py-0.5 rounded">After</span>`;
+  } else {
+    stage.className='relative w-full aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 border border-slate-200 select-none';
+    stage.innerHTML=`<img src="${bU}" class="absolute inset-0 w-full h-full object-cover" alt="Before"/><div id="sl-clip" class="absolute inset-0 overflow-hidden" style="width:${cmp.slider}%"><img src="${aU}" class="absolute inset-0 h-full object-cover max-w-none" alt="After"/></div><div id="sl-line" class="absolute top-0 bottom-0 w-0.5 bg-white" style="left:${cmp.slider}%"></div><span class="absolute top-2 left-2 bg-slate-900/70 text-white text-xs font-medium px-2 py-0.5 rounded">Before</span><span class="absolute top-2 right-2 bg-primary-500 text-white text-xs font-medium px-2 py-0.5 rounded">After</span>`;
+    const fix=()=>{ const w=stage.clientWidth; const img=stage.querySelector('#sl-clip img'); if(img) img.style.width=w+'px'; };
+    requestAnimationFrame(fix);
+  }
+}
+
+/* =========================================================================
+   Change animation (preview + WebM record)
+   ========================================================================= */
+let animRAF=null, animRec=null;
+function stopAnim(){ if(animRAF){ cancelAnimationFrame(animRAF); animRAF=null; } if(animRec&&animRec.state==='recording'){ try{animRec.stop();}catch(e){} } animRec=null; }
+function animPhotos(){ const list=(tlFilter==='all'?photos:photos.filter(p=>p.category===tlFilter)); return [...list].sort((a,b)=>a.takenDate<b.takenDate?-1:1); }
+async function initAnimCanvas(){
+  const c=document.getElementById('anim-canvas'); if(!c) return;
+  c.width=720; c.height=960; const ctx=c.getContext('2d');
+  const list=animPhotos();
+  ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,c.width,c.height);
+  if(!list.length){ return; }
+  const img=await loadImg(urlFor(list[0])); coverDraw(ctx,img,0,0,c.width,c.height);
+}
+async function playAnim(record){
+  stopAnim();
+  const c=document.getElementById('anim-canvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  const list=animPhotos();
+  if(list.length<2){ toast('再生には2枚以上必要です'); return; }
+  const imgs=await Promise.all(list.map(p=>loadImg(urlFor(p))));
+  const first=list[0].takenDate;
+  let rec=null, chunks=[];
+  if(record){
+    if(!c.captureStream || typeof MediaRecorder==='undefined'){ toast('この環境では動画保存に未対応です'); return; }
+    try{ const stream=c.captureStream(30); rec=new MediaRecorder(stream,{mimeType:'video/webm'}); }
+    catch(e){ toast('この環境では動画保存に未対応です'); return; }
+    rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
+    rec.onstop=()=>{ const blob=new Blob(chunks,{type:'video/webm'}); const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download='change_animation.webm'; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1000); toast('動画を保存しました'); };
+    animRec=rec; rec.start();
+  }
+  const HOLD=700, FADE=450, perFrame=HOLD+FADE;
+  const total=record?(perFrame*(imgs.length-1)+HOLD):Infinity;
+  const t0=performance.now();
+  function frame(now){
+    let t=now-t0;
+    if(record && t>=total){ if(rec&&rec.state==='recording') rec.stop(); animRAF=null; return; }
+    if(!record){ t=t%(perFrame*(imgs.length-1)+HOLD); }
+    let idx=Math.floor(t/perFrame); if(idx>=imgs.length-1) idx=imgs.length-2;
+    const local=t-idx*perFrame;
+    const cur=imgs[idx], nxt=imgs[idx+1];
+    ctx.fillStyle='#0f172a'; ctx.fillRect(0,0,c.width,c.height);
+    coverDraw(ctx,cur,0,0,c.width,c.height);
+    if(local>HOLD){ ctx.globalAlpha=Math.min(1,(local-HOLD)/FADE); coverDraw(ctx,nxt,0,0,c.width,c.height); ctx.globalAlpha=1; }
+    const shownIdx=(local>HOLD+FADE/2)?idx+1:idx;
+    const d=daysBetween(first,list[shownIdx].takenDate);
+    ctx.fillStyle='rgba(15,23,42,0.55)'; ctx.fillRect(0,c.height-90,c.width,90);
+    ctx.fillStyle='#fff'; ctx.textBaseline='middle';
+    ctx.textAlign='left'; ctx.font='600 30px Inter,"Hiragino Sans",sans-serif'; ctx.fillText(`Day ${d+1}`,28,c.height-45);
+    ctx.textAlign='right'; ctx.font='500 26px Inter,"Hiragino Sans",sans-serif'; ctx.fillText(fmtDate(list[shownIdx].takenDate),c.width-28,c.height-45);
+    animRAF=requestAnimationFrame(frame);
+  }
+  animRAF=requestAnimationFrame(frame);
+}
+
+/* =========================================================================
+   Post
+   ========================================================================= */
+const post={ format:'square', showDay:true };
+function renderPost(){
+  if(photos.length<2){ main.innerHTML=`<section>${emptyState('投稿には2枚以上必要です','Before / After を選べる状態にしてから投稿画像を作成できます。')}</section>`; return; }
+  ensurePair();
+  const before=photos.find(p=>p.id===cmp.beforeId), after=photos.find(p=>p.id===cmp.afterId);
+  const dayDiff=daysBetween(before.takenDate,after.takenDate);
+  const fmtBtn=(id,label,sub)=>`<button data-fmt="${id}" class="pfmt flex-1 py-3 rounded-lg text-sm font-medium cursor-pointer border ${post.format===id?'bg-primary-50 border-primary-500 text-primary-700':'bg-white border-slate-200 text-slate-700 hover:bg-gray-50'}"><span class="block font-semibold">${label}</span><span class="block text-xs text-slate-500 mt-0.5">${sub}</span></button>`;
+  const canShare=!!(navigator.share);
+  main.innerHTML=`<section class="space-y-4">
+    <div class="grid grid-cols-2 gap-3">${picker('before','Before',before)}${picker('after','After',after)}</div>
+    <div><span class="block text-sm font-medium text-slate-700 mb-2">フォーマット</span><div class="flex gap-2">${fmtBtn('square','正方形','投稿用 1080×1080')}${fmtBtn('story','縦長','ストーリー 1080×1920')}</div></div>
+    <label class="flex items-center justify-between leading-normal bg-white rounded-xl border border-slate-200 p-4 shadow-sm cursor-pointer"><span class="text-sm font-medium text-slate-700">経過日数を表示</span><input id="post-day" type="checkbox" ${post.showDay?'checked':''} class="w-5 h-5 rounded border-slate-300"/></label>
+    <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm"><canvas id="post-canvas" class="w-full rounded-lg border border-slate-200"></canvas><p class="mt-2 text-center text-sm text-slate-500">${dayDiff>0?`Day 1 → Day ${dayDiff+1}`:'プレビュー'}</p></div>
+    <div class="flex gap-2">
+      <button id="post-save" class="flex-1 inline-flex items-center justify-center gap-2 h-12 px-6 text-base font-medium bg-primary-500 text-white rounded-lg hover:bg-primary-700 cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>保存
+      </button>
+      ${canShare?`<button id="post-share" class="flex-1 inline-flex items-center justify-center gap-2 h-12 px-6 text-base font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>共有
+      </button>`:''}
+    </div>
+    <p class="text-xs text-slate-500 text-center">今月の投稿生成: ${postsThisMonth()} / 無料プラン ${FREE_POST_LIMIT} 回（参考表示・制限なし）</p>
+  </section>`;
+  drawPost(before,after,dayDiff,document.getElementById('post-canvas'));
+}
+
+/* ---------- canvas shared ---------- */
+function loadImg(url){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=url; }); }
+function coverDraw(ctx,img,dx,dy,dw,dh){ const ir=img.width/img.height, dr=dw/dh; let sw,sh,sx,sy; if(ir>dr){ sh=img.height; sw=sh*dr; sx=(img.width-sw)/2; sy=0; } else { sw=img.width; sh=sw/dr; sx=0; sy=(img.height-sh)/2; } ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh); }
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawWatermark(ctx,W,H){ if(!settings.watermark) return; const txt=(settings.watermarkText||'Before/After').slice(0,40); ctx.save(); ctx.globalAlpha=0.6; ctx.fillStyle='#ffffff'; ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.font='500 26px Inter,"Hiragino Sans",sans-serif'; ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=6; ctx.fillText(txt,W-24,H-20); ctx.restore(); }
+
+async function composePost(before,after,dayDiff){
+  const W=1080, H=post.format==='square'?1080:1920;
+  const c=document.createElement('canvas'); c.width=W; c.height=H; const ctx=c.getContext('2d');
+  ctx.fillStyle='#f9fafb'; ctx.fillRect(0,0,W,H);
+  const pad=48, gap=24, labelH=64, footH=post.showDay?120:48;
+  const innerW=W-pad*2, colW=(innerW-gap)/2, imgTop=pad+labelH, imgH=H-imgTop-footH-pad;
+  const [b,a]=await Promise.all([loadImg(urlFor(before)),loadImg(urlFor(after))]);
+  ctx.textBaseline='middle'; ctx.textAlign='center'; ctx.font='600 40px Inter,"Hiragino Sans",sans-serif';
+  ctx.fillStyle='#3d4b5f'; ctx.fillText('Before',pad+colW/2,pad+labelH/2);
+  ctx.fillStyle='#2b70ef'; ctx.fillText('After',pad+colW+gap+colW/2,pad+labelH/2);
+  const col=(img,x)=>{ ctx.save(); roundRect(ctx,x,imgTop,colW,imgH,24); ctx.clip(); coverDraw(ctx,img,x,imgTop,colW,imgH); ctx.restore(); ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=2; roundRect(ctx,x,imgTop,colW,imgH,24); ctx.stroke(); };
+  col(b,pad); col(a,pad+colW+gap);
+  if(post.showDay){ ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='700 56px Inter,"Hiragino Sans",sans-serif'; ctx.fillStyle='#0f172a'; ctx.fillText(dayDiff>0?`${dayDiff}日間の変化`:'変化の記録',W/2,H-pad-60); ctx.font='500 34px Inter,"Hiragino Sans",sans-serif'; ctx.fillStyle='#64748b'; if(dayDiff>0) ctx.fillText(`Day 1  →  Day ${dayDiff+1}`,W/2,H-pad-8); }
+  drawWatermark(ctx,W,H);
+  return c;
+}
+async function drawPost(before,after,dayDiff,target){ const c=await composePost(before,after,dayDiff); const ctx=target.getContext('2d'); target.width=c.width; target.height=c.height; ctx.drawImage(c,0,0); }
+
+async function composeSideBySide(before,after){ const W=1200,H=900,pad=24,gap=12,labelH=48; const c=document.createElement('canvas'); c.width=W;c.height=H; const ctx=c.getContext('2d'); ctx.fillStyle='#f9fafb'; ctx.fillRect(0,0,W,H); const colW=(W-pad*2-gap)/2, top=pad+labelH, imgH=H-top-pad; const [b,a]=await Promise.all([loadImg(urlFor(before)),loadImg(urlFor(after))]); ctx.textBaseline='middle';ctx.textAlign='center';ctx.font='600 32px Inter,"Hiragino Sans",sans-serif'; ctx.fillStyle='#3d4b5f'; ctx.fillText('Before',pad+colW/2,pad+labelH/2); ctx.fillStyle='#2b70ef'; ctx.fillText('After',pad+colW+gap+colW/2,pad+labelH/2); const col=(img,x)=>{ctx.save();roundRect(ctx,x,top,colW,imgH,16);ctx.clip();coverDraw(ctx,img,x,top,colW,imgH);ctx.restore();}; col(b,pad); col(a,pad+colW+gap); drawWatermark(ctx,W,H); return c; }
+async function composeOverlay(before,after,op){ const [b,a]=await Promise.all([loadImg(urlFor(before)),loadImg(urlFor(after))]); const W=900,H=1200; const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d'); coverDraw(ctx,b,0,0,W,H); ctx.globalAlpha=op; coverDraw(ctx,a,0,0,W,H); ctx.globalAlpha=1; drawWatermark(ctx,W,H); return c; }
+async function composeSlider(before,after,frac){ const [b,a]=await Promise.all([loadImg(urlFor(before)),loadImg(urlFor(after))]); const W=900,H=1200; const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d'); coverDraw(ctx,b,0,0,W,H); const x=Math.round(W*frac); ctx.save(); ctx.beginPath(); ctx.rect(0,0,x,H); ctx.clip(); coverDraw(ctx,a,0,0,W,H); ctx.restore(); ctx.fillStyle='#ffffff'; ctx.fillRect(x-2,0,4,H); drawWatermark(ctx,W,H); return c; }
+
+function canvasToBlob(c){ return new Promise(res=>c.toBlob(res,'image/png')); }
+function downloadBlob(blob,name){ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1000); }
+
+async function saveCompare(){
+  const before=photos.find(p=>p.id===cmp.beforeId), after=photos.find(p=>p.id===cmp.afterId); if(!before||!after){ toast('Before / After を選択してください'); return; }
+  let c; if(cmp.mode==='side') c=await composeSideBySide(before,after); else if(cmp.mode==='overlay') c=await composeOverlay(before,after,cmp.overlay/100); else c=await composeSlider(before,after,cmp.slider/100);
+  const blob=await canvasToBlob(c); downloadBlob(blob,`compare_${before.takenDate}_${after.takenDate}.png`); await bumpPostUsage(); toast('比較画像を保存しました');
+}
+async function savePost(){
+  const before=photos.find(p=>p.id===cmp.beforeId), after=photos.find(p=>p.id===cmp.afterId); if(!before||!after){ toast('Before / After を選択してください'); return; }
+  const dayDiff=daysBetween(before.takenDate,after.takenDate); const c=await composePost(before,after,dayDiff); const blob=await canvasToBlob(c);
+  downloadBlob(blob, post.format==='square'?'post_square.png':'post_story.png'); await bumpPostUsage(); renderPost(); toast('投稿画像をダウンロードしました');
+}
+async function sharePost(){
+  const before=photos.find(p=>p.id===cmp.beforeId), after=photos.find(p=>p.id===cmp.afterId); if(!before||!after) return;
+  const dayDiff=daysBetween(before.takenDate,after.takenDate); const c=await composePost(before,after,dayDiff); const blob=await canvasToBlob(c);
+  const file=new File([blob],'post.png',{type:'image/png'});
+  try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'Before / After'}); await bumpPostUsage(); } else { downloadBlob(blob,'post_square.png'); toast('共有未対応のため画像を保存しました'); } }
+  catch(e){ /* user cancelled */ }
+}
+
+/* =========================================================================
+   Settings
+   ========================================================================= */
+function renderSettings(){
+  main.innerHTML=`<section class="space-y-4">
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-4">
+      <h2 class="text-base font-semibold text-slate-900">投稿の透かし</h2>
+      <label class="flex items-center justify-between leading-normal cursor-pointer"><span class="text-sm text-slate-700">透かしを入れる</span><input id="set-wm" type="checkbox" ${settings.watermark?'checked':''} class="w-5 h-5 rounded border-slate-300"/></label>
+      <div class="leading-normal"><label for="set-wmt" class="block text-sm font-medium text-slate-700 mb-2">透かし文字</label><input id="set-wmt" type="text" value="${escapeHtml(settings.watermarkText)}" placeholder="例: @your_id" class="w-full px-3 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 caret-primary-500"/></div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm leading-normal">
+      <label for="set-rem" class="block text-base font-semibold text-slate-900 mb-2">撮影リマインド間隔</label>
+      <div class="relative">
+        <select id="set-rem" class="appearance-none w-full pl-3 pr-10 py-2 text-base border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500/50 bg-white">
+          <option value="0" ${settings.reminderDays===0?'selected':''}>なし</option>
+          <option value="1" ${settings.reminderDays===1?'selected':''}>1日ごと</option>
+          <option value="3" ${settings.reminderDays===3?'selected':''}>3日ごと</option>
+          <option value="7" ${settings.reminderDays===7?'selected':''}>7日ごと</option>
+          <option value="30" ${settings.reminderDays===30?'selected':''}>30日ごと</option>
+        </select>
+        <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">ホームに次の撮影目安が表示されます。</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <h2 class="text-base font-semibold text-slate-900 mb-3">データ管理</h2>
+      <div class="flex gap-2">
+        <button id="data-export" class="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>バックアップ
+        </button>
+        <label class="flex-1 inline-flex items-center justify-center gap-2 h-11 px-4 text-sm font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>復元
+          <input id="data-import" type="file" accept="application/json" class="hidden"/>
+        </label>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">写真と設定をJSONで書き出し/読み込みます。${Store.isMemory?'この環境は一時保存のため、こまめなバックアップを推奨します。':'端末内に保存されます。'}</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      <h2 class="text-base font-semibold text-slate-900 mb-2">プラン</h2>
+      <div class="text-sm text-body space-y-1">
+        <p>写真: <span class="font-medium text-slate-900">${photos.length}</span> / 無料 ${FREE_PHOTO_LIMIT} 枚</p>
+        <p>今月の投稿生成: <span class="font-medium text-slate-900">${postsThisMonth()}</span> / 無料 ${FREE_POST_LIMIT} 回</p>
+      </div>
+      <div class="mt-3 flex items-start gap-3 p-3 bg-primary-50 border border-primary-200 text-primary-800 rounded-lg">
+        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <p class="text-sm">使用量は参考表示です。無制限化・決済はサーバー側の実装で対応します。</p>
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-slate-400">変化を記録し、比較しやすくするためのアプリです。表示される数値は参考情報であり、診断ではありません。</p>
+  </section>`;
+}
+
+/* =========================================================================
+   Add / Camera
+   ========================================================================= */
+let stagedBlob=null, selectedCat='muscle';
+function renderCatPicker(){ document.getElementById('cat-picker').innerHTML=CATEGORIES.map(c=>`<button data-cat="${c.id}" class="catc px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer ${selectedCat===c.id?'bg-primary-500 text-white border-primary-500':'bg-white text-slate-700 border-slate-200 hover:bg-gray-50'}">${c.label}</button>`).join(''); }
+function setStaged(blob){ stagedBlob=blob; const img=document.getElementById('add-preview'); img.src=URL.createObjectURL(blob); img.classList.remove('hidden'); document.getElementById('add-placeholder').classList.add('hidden'); document.getElementById('save-photo').disabled=false; }
+function openAdd(){ stagedBlob=null; selectedCat='muscle'; document.getElementById('in-date').value=today(); document.getElementById('in-weight').value=''; document.getElementById('in-fat').value=''; document.getElementById('in-memo').value=''; document.getElementById('add-preview').classList.add('hidden'); document.getElementById('add-placeholder').classList.remove('hidden'); document.getElementById('save-photo').disabled=true; renderCatPicker(); document.getElementById('add-modal').classList.remove('hidden'); }
+function closeAdd(){ document.getElementById('add-modal').classList.add('hidden'); }
+
+let camStream=null, camFacing='environment', camGrid=false, camGhostOp=0.4;
+async function openCamera(){
+  const m=document.getElementById('cam-modal'); m.classList.remove('hidden');
+  const err=document.getElementById('cam-error'); err.classList.add('hidden');
+  // ghost: latest photo of selected category
+  const ghostP=photos.find(p=>p.category===selectedCat)||photos[0];
+  const ghost=document.getElementById('cam-ghost'); const ctrl=document.getElementById('ghost-ctrl');
+  if(ghostP){ ghost.src=urlFor(ghostP); ghost.style.opacity=camGhostOp; ghost.classList.remove('hidden'); ctrl.classList.remove('hidden'); document.getElementById('ghost-range').value=Math.round(camGhostOp*100); document.getElementById('ghost-val').textContent=Math.round(camGhostOp*100)+'%'; }
+  else { ghost.classList.add('hidden'); ctrl.classList.add('hidden'); }
+  document.getElementById('cam-gridlines').classList.toggle('hidden',!camGrid);
+  await startCam();
+}
+async function startCam(){
+  stopCam();
+  const v=document.getElementById('cam-video'), err=document.getElementById('cam-error');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ err.textContent='この環境ではカメラを利用できません。ライブラリから選択してください。'; err.classList.remove('hidden'); return; }
+  try{ camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camFacing},audio:false}); v.srcObject=camStream; }
+  catch(e){ err.textContent='カメラを起動できませんでした。権限を確認するか、ライブラリから選択してください。'; err.classList.remove('hidden'); }
+}
+function stopCam(){ if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } }
+function closeCamera(){ stopCam(); document.getElementById('cam-modal').classList.add('hidden'); }
+function shoot(){
+  const v=document.getElementById('cam-video'); if(!v.videoWidth){ toast('カメラ準備中です'); return; }
+  const c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight; const ctx=c.getContext('2d');
+  if(camFacing==='user'){ ctx.translate(c.width,0); ctx.scale(-1,1); } // mirror front cam
+  ctx.drawImage(v,0,0,c.width,c.height);
+  c.toBlob(blob=>{ setStaged(blob); closeCamera(); }, 'image/jpeg', 0.92);
+}
+
+/* =========================================================================
+   Goal modal
+   ========================================================================= */
+function openGoal(){
+  const weighed=photos.filter(p=>p.weight!=null).sort((a,b)=>a.takenDate<b.takenDate?-1:1);
+  document.getElementById('g-start').value=goal?goal.start:(weighed.length?weighed[0].weight:'');
+  document.getElementById('g-target').value=goal?goal.target:'';
+  document.getElementById('g-date').value=goal?goal.date:addDays(today(),90);
+  document.getElementById('goal-modal').classList.remove('hidden');
+}
+function closeGoal(){ document.getElementById('goal-modal').classList.add('hidden'); }
+
+/* =========================================================================
+   Data export / import
+   ========================================================================= */
+function blobToDataURL(blob){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); }); }
+async function exportData(){
+  toast('バックアップを作成中…');
+  const out={ version:1, exportedAt:new Date().toISOString(), settings, goal, usage, photos:[] };
+  for(const p of photos){ const dataUrl=await blobToDataURL(p.blob); out.photos.push({ id:p.id, category:p.category, takenDate:p.takenDate, weight:p.weight, bodyFat:p.bodyFat, memo:p.memo, createdAt:p.createdAt, image:dataUrl }); }
+  const blob=new Blob([JSON.stringify(out)],{type:'application/json'});
+  downloadBlob(blob,`beforeafter_backup_${today()}.json`); toast('バックアップを保存しました');
+}
+async function importData(file){
+  try{
+    const text=await file.text(); const data=JSON.parse(text);
+    if(!data||!Array.isArray(data.photos)) throw new Error('format');
+    if(!confirm(`${data.photos.length}件の記録を読み込みます。続行しますか?`)) return;
+    for(const p of data.photos){ const resp=await fetch(p.image); const blob=await resp.blob(); await Store.addPhoto({ id:p.id||uid(), blob, category:p.category||'other', takenDate:p.takenDate||today(), weight:p.weight??null, bodyFat:p.bodyFat??null, memo:p.memo||null, createdAt:p.createdAt||new Date().toISOString() }); }
+    if(data.settings) await Store.setKv('settings',data.settings);
+    if(data.goal) await Store.setKv('goal',data.goal);
+    if(data.usage) await Store.setKv('usage',data.usage);
+    urlCache.clear(); await reloadAll(); render(); toast('復元しました');
+  }catch(e){ console.error(e); toast('読み込みに失敗しました（形式が不正です）'); }
+}
+
+/* =========================================================================
+   Events
+   ========================================================================= */
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.getElementById('fab').addEventListener('click',openAdd);
+
+document.getElementById('add-modal').addEventListener('click',e=>{ if(e.target.dataset.close==='add') closeAdd(); });
+document.getElementById('btn-camera').addEventListener('click',openCamera);
+document.getElementById('file-input').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f) setStaged(f); e.target.value=''; });
+document.getElementById('cat-picker').addEventListener('click',e=>{ const b=e.target.closest('.catc'); if(!b) return; selectedCat=b.dataset.cat; renderCatPicker(); });
+document.getElementById('save-photo').addEventListener('click',async()=>{
+  if(!stagedBlob) return;
+  const rec={ id:uid(), blob:stagedBlob, category:selectedCat, takenDate:document.getElementById('in-date').value||today(), weight:parseFloat(document.getElementById('in-weight').value)||null, bodyFat:parseFloat(document.getElementById('in-fat').value)||null, memo:document.getElementById('in-memo').value.trim()||null, createdAt:new Date().toISOString() };
+  try{ await Store.addPhoto(rec); await reloadAll(); closeAdd(); render(); toast('記録を保存しました'); }catch(err){ console.error(err); toast('保存に失敗しました'); }
+});
+
+// camera controls
+document.getElementById('cam-close').addEventListener('click',closeCamera);
+document.getElementById('cam-shot').addEventListener('click',shoot);
+document.getElementById('cam-flip').addEventListener('click',async()=>{ camFacing=camFacing==='environment'?'user':'environment'; await startCam(); });
+document.getElementById('cam-grid').addEventListener('click',()=>{ camGrid=!camGrid; document.getElementById('cam-gridlines').classList.toggle('hidden',!camGrid); });
+document.getElementById('ghost-range').addEventListener('input',e=>{ camGhostOp=(+e.target.value)/100; document.getElementById('cam-ghost').style.opacity=camGhostOp; document.getElementById('ghost-val').textContent=e.target.value+'%'; });
+
+// goal modal
+document.getElementById('goal-modal').addEventListener('click',e=>{ if(e.target.dataset.close==='goal') closeGoal(); });
+document.getElementById('goal-save').addEventListener('click',async()=>{
+  const s=parseFloat(document.getElementById('g-start').value), t=parseFloat(document.getElementById('g-target').value), d=document.getElementById('g-date').value;
+  if(isNaN(s)||isNaN(t)||!d){ toast('開始・目標・期限を入力してください'); return; }
+  goal={start:s,target:t,date:d}; await Store.setKv('goal',goal); closeGoal(); render(); toast('目標を保存しました');
+});
+document.getElementById('goal-clear').addEventListener('click',async()=>{ goal=null; await Store.setKv('goal',null); closeGoal(); render(); toast('目標を削除しました'); });
+
+// delegated clicks in main
+main.addEventListener('click',async e=>{
+  const go=e.target.closest('.go'); if(go){ setTab(go.dataset.go); return; }
+  if(e.target.closest('#goal-edit')){ openGoal(); return; }
+  const del=e.target.closest('.del'); if(del){ if(confirm('この記録を削除しますか?')){ const id=del.dataset.del; if(cmp.beforeId===id) cmp.beforeId=null; if(cmp.afterId===id) cmp.afterId=null; await Store.delPhoto(id); await reloadAll(); render(); toast('削除しました'); } return; }
+  const tlf=e.target.closest('.tlf'); if(tlf){ tlFilter=tlf.dataset.tlf; renderTimeline(); return; }
+  const mode=e.target.closest('.cmode'); if(mode){ cmp.mode=mode.dataset.mode; renderCompare(); return; }
+  const pick=e.target.closest('.pick'); if(pick){ openPickerSheet(pick.dataset.pick); return; }
+  const fmt=e.target.closest('.pfmt'); if(fmt){ post.format=fmt.dataset.fmt; renderPost(); return; }
+  if(e.target.closest('#cmp-save')){ saveCompare(); return; }
+  if(e.target.closest('#post-save')){ savePost(); return; }
+  if(e.target.closest('#post-share')){ sharePost(); return; }
+  if(e.target.closest('#anim-play')){ playAnim(false); return; }
+  if(e.target.closest('#anim-rec')){ playAnim(true); return; }
+  if(e.target.closest('#data-export')){ exportData(); return; }
+});
+main.addEventListener('input',e=>{
+  if(e.target.id==='cmp-range'){ const v=parseInt(e.target.value,10); if(cmp.mode==='overlay'){ cmp.overlay=v; const a=document.getElementById('ov-after'); if(a) a.style.opacity=v/100; } else { cmp.slider=v; const clip=document.getElementById('sl-clip'); const line=document.getElementById('sl-line'); if(clip) clip.style.width=v+'%'; if(line) line.style.left=v+'%'; } }
+  if(e.target.id==='post-day'){ post.showDay=e.target.checked; renderPost(); }
+  if(e.target.id==='tl-search'){ tlSearch=e.target.value; renderTimelineList(); }
+  if(e.target.id==='set-wm'){ settings.watermark=e.target.checked; Store.setKv('settings',settings); }
+  if(e.target.id==='set-wmt'){ settings.watermarkText=e.target.value; Store.setKv('settings',settings); }
+});
+main.addEventListener('change',e=>{
+  if(e.target.id==='set-rem'){ settings.reminderDays=parseInt(e.target.value,10)||0; Store.setKv('settings',settings); }
+  if(e.target.id==='data-import'){ const f=e.target.files&&e.target.files[0]; if(f) importData(f); e.target.value=''; }
+});
+// keep search focus: re-render only the list under search box
+function renderTimelineList(){ /* lightweight: full re-render preserves input value via state; refocus */ const el=document.getElementById('tl-search'); const pos=el?el.selectionStart:null; renderTimeline(); const ne=document.getElementById('tl-search'); if(ne){ ne.focus(); if(pos!=null) try{ne.setSelectionRange(pos,pos);}catch(_){} } }
+
+// slider drag on stage
+main.addEventListener('pointerdown',e=>{
+  if(cmp.mode!=='slider'||activeTab!=='compare') return;
+  const stage=e.target.closest('#cmp-stage'); if(!stage) return;
+  const move=ev=>{ const r=stage.getBoundingClientRect(); let v=Math.round(((ev.clientX-r.left)/r.width)*100); v=Math.max(0,Math.min(100,v)); cmp.slider=v; const clip=document.getElementById('sl-clip'),line=document.getElementById('sl-line'),range=document.getElementById('cmp-range'); if(clip) clip.style.width=v+'%'; if(line) line.style.left=v+'%'; if(range) range.value=v; };
+  move(e); const up=()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); }; window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+});
+
+// picker bottom-sheet
+function openPickerSheet(role){
+  const items=photos.map(p=>`<button data-pid="${p.id}" class="psel relative aspect-square overflow-hidden rounded-lg border border-slate-200 cursor-pointer"><img src="${urlFor(p)}" class="w-full h-full object-cover" alt="候補"/><span class="absolute bottom-1 left-1 bg-slate-900/70 text-white text-xs px-1.5 py-0.5 rounded">${fmtDate(p.takenDate)}</span></button>`).join('');
+  const sheet=document.createElement('div'); sheet.className='fixed inset-0 z-40';
+  sheet.innerHTML=`<div class="absolute inset-0 bg-slate-900/40" data-pclose></div><div class="absolute inset-x-0 bottom-0 mx-auto max-w-md bg-white rounded-t-2xl border-t border-slate-200 shadow-md max-h-[80vh] flex flex-col"><div class="px-5 pt-4 pb-3 border-b border-slate-200 flex items-center justify-between"><h2 class="text-xl font-bold text-slate-900">${role==='before'?'Before':'After'} を選択</h2><button data-pclose aria-label="閉じる" class="w-10 h-10 inline-flex items-center justify-center rounded-lg hover:bg-gray-50 cursor-pointer text-slate-500"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div><div class="p-4 overflow-y-auto"><div class="grid grid-cols-3 gap-3">${items}</div></div></div>`;
+  document.body.appendChild(sheet);
+  sheet.addEventListener('click',ev=>{ if(ev.target.hasAttribute('data-pclose')){ sheet.remove(); return; } const b=ev.target.closest('.psel'); if(!b) return; if(role==='before') cmp.beforeId=b.dataset.pid; else cmp.afterId=b.dataset.pid; sheet.remove(); activeTab==='post'?renderPost():renderCompare(); });
+}
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+(async function(){
+  await Store.open();
+  await reloadAll();
+  if(Store.isMemory){ setTimeout(()=>toast('この環境では保存は一時的です（公開時は端末内に保存されます）'),600); }
+  setTab('home');
+})();
+</script>
+</body>
+</html>
